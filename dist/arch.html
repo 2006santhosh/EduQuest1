@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, orientation=landscape">
+  <title>Archer Quiz Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+
+    #question {
+      font-size: 3vw;
+      margin: 20px;
+      font-weight: bold;
+    }
+
+    #message {
+      font-size: 1.5vw;
+      font-weight: bold;
+      margin: 10px;
+      color: green;
+    }
+
+    #score {
+      font-size: 18px;
+      margin: 10px;
+      font-weight: bold;
+    }
+
+    svg {
+      width: 800px;
+      /* fixed size for desktop */
+      height: 400px;
+      max-width: 100%;
+      /* allow smaller screens to shrink it */
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      border: 2px solid #333;
+    }
+
+    .target-group {
+      cursor: pointer;
+    }
+
+    body,
+    svg,
+    text {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url("./asset/env.png") no-repeat center;
+      background-size: cover;
+      filter: blur(6px);
+      opacity: 0.7;
+      z-index: -1;
+    }
+
+    .cloud {
+      position: fixed;
+      left: -300px;
+      opacity: 0.6;
+      z-index: -1;
+    }
+
+    .cloud.small {
+      width: 120px;
+      animation: moveCloud 18s linear infinite;
+    }
+
+    .cloud.medium {
+      width: 200px;
+      animation: moveCloud 28s linear infinite;
+    }
+
+    .cloud.large {
+      width: 280px;
+      animation: moveCloud 38s linear infinite;
+    }
+
+    @keyframes moveCloud {
+      0% {
+        left: -300px;
+      }
+
+      100% {
+        left: 100vw;
+      }
+    }
+
+    /* Final Score Popup */
+    #finalPopup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+      z-index: 9999;
+      text-align: center;
+      font-size: 2vw;
+      font-weight: bold;
+    }
+
+    #finalPopup button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 1.2vw;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+    }
+
+    #playBtn {
+      background: #4caf50;
+      color: white;
+    }
+
+    #playBtn:hover {
+      background: #45a049;
+    }
+
+    #exitBtn {
+      background: #f44336;
+      color: white;
+    }
+
+    #exitBtn:hover {
+      background: #d32f2f;
+    }
+
+    /* Skip Button */
+    #skipBtn {
+      margin: 15px auto;
+      /* center horizontally with auto */
+      padding: 12px 24px;
+      font-size: 1.2vw;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #ff9800;
+      color: white;
+      display: block;
+      /* make it behave like a block element */
+    }
+
+    #skipBtn:hover {
+      background: #e68900;
+    }
+
+    /* Controls container to position under the game */
+    #controls {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+
+    /* Sidebar */
+    #sidebar {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 300px;
+      height: 100%;
+      background: #ffffff;
+      border-right: 2px solid #333;
+
+      overflow-y: auto;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+      transition: left 0.4s ease-in-out;
+      z-index: 10000;
+      font-size: 1vw;
+    }
+
+    #sidebar h2 {
+      margin-top: 0;
+      text-align: center;
+      font-size: 1.2vw;
+    }
+
+    #sidebarContent div {
+      margin-bottom: 15px;
+      font-size: 1vw;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+    }
+
+    /* === Default Desktop Styles (yours stay the same) === */
+
+
+    /* ✅ General Mobile & Tablet (≤1024px, both orientations) */
+    @media screen and (max-width: 1024px) {
+      body {
+        font-size: 14px;
+      }
+
+      h1 {
+        font-size: 3vw;
+      }
+
+      #question {
+        font-size: 2vw;
+      }
+
+      #message {
+        font-size: 1.5vw;
+      }
+
+      #score {
+        font-size: 1.5vw;
+      }
+
+      svg {
+        width: 95vw;
+        height: auto;
+        max-height: 60vh;
+      }
+
+      #finalPopup {
+        font-size: 2vw;
+        width: 80%;
+      }
+
+      #finalPopup button {
+        font-size: 2.5vw;
+      }
+
+      #skipBtn {
+        font-size: 1.5vw;
+        padding: 10px 18px;
+      }
+
+      .cloud.small {
+        width: 70px;
+      }
+
+      .cloud.medium {
+        width: 120px;
+      }
+
+      .cloud.large {
+        width: 160px;
+      }
+
+      #sidebar {
+        width: 80%;
+        font-size: 1.5vw;
+      }
+
+      #sidebar h2 {
+        font-size: 2.5vw;
+      }
+
+      #sidebarContent div {
+        font-size: 1.5vw;
+      }
+    }
+
+
+    @media screen and (max-width: 1024px) {
+      svg#gameSVG {
+        width: 55vw;
+        /* Shrinks width to 90% of screen */
+        max-height: 60vh;
+        /* Shrinks height proportionally */
+        border: 1px solid #333;
+      }
+
+      body {
+        font-size: 2vw;
+        overflow-x: hidden;
+      }
+
+      h1 {
+        font-size: 2vw;
+      }
+
+      #question {
+        font-size: 2vw;
+      }
+
+      #message {
+        font-size: 1.5vw;
+      }
+
+      #score {
+        font-size: 1.5vw;
+      }
+
+      svg {
+        width: 100vw;
+        height: auto;
+        max-height: 65vh;
+      }
+
+      #finalPopup {
+        font-size: 1.5vw;
+        width: 40%;
+      }
+
+      #finalPopup button {
+        font-size: 1.5vw;
+        padding: 8px 0;
+      }
+
+      #skipBtn {
+        font-size: 2vw;
+        padding: 12px 15px;
+      }
+
+      .cloud.small {
+        width: 60px;
+      }
+
+      .cloud.medium {
+        width: 100px;
+      }
+
+      .cloud.large {
+        width: 140px;
+      }
+
+      #sidebar {
+        width: 50%;
+        left: -50%;
+        /* keep hidden until triggered */
+        font-size: 1.5vw;
+      }
+
+      #sidebar h2 {
+        font-size: 1.5vw;
+      }
+
+      #sidebarContent div {
+        font-size: 1.5vw;
+      }
+    }
+
+    /* ✅ Landscape Mode Only */
+    @media screen and (max-width: 1024px) and (orientation: landscape) {
+      body {
+        font-size: 16px;
+      }
+
+      svg {
+        width: 100vw;
+        /* fill screen width */
+        height: auto;
+        max-height: 80vh;
+        /* keep inside viewport */
+      }
+
+      #sidebar {
+        width: 40%;
+        left: -40%;
+        /* hidden until opened */
+      }
+    }
+
+    /* ❌ Portrait Mode → Force Rotate */
+    @media screen and (max-width: 1024px) and (orientation: portrait) {
+      body * {
+        display: none !important;
+      }
+
+      body::after {
+        content: "📱 Please rotate your device to landscape mode to play the game.";
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 5vw;
+        text-align: center;
+        width: 100%;
+        height: 100%;
+        color: #000;
+        background: #fff;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>🏹 Archer Quiz Game</h1>
+
+  <div id="question">Loading question...</div>
+  <div id="message"></div>
+  <div id="score"></div>
+
+  <div style="position: relative; display: inline-block;">
+    <!-- Clouds -->
+    <img src="./asset/cloud.png" class="cloud medium" style="top:80px; animation-delay:0s;">
+    <img src="./asset/cloud.png" class="cloud large" style="top:50px; animation-delay:4s;">
+    <img src="./asset/cloud.png" class="cloud medium" style="top:80px; animation-delay:8s;">
+    <img src="./asset/cloud.png" class="cloud large" style="top:50px; animation-delay:12s;">
+    <img src="./asset/cloud.png" class="cloud medium" style="top:80px; animation-delay:16s;">
+    <img src="./asset/cloud.png" class="cloud large" style="top:50px; animation-delay:20s;">
+    <img src="./asset/cloud.png" class="cloud large" style="top:50px; animation-delay:22s;">
+
+    <!-- Game SVG -->
+    <!-- Container to control scaling -->
+    <div class="game-container">
+      <svg id="gameSVG" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
+        <!-- ✅ Background inside the environment -->
+        <image href="./asset/env1.jpg" x="0" y="-20" width="800" height="480" preserveAspectRatio="xMidYMid slice" />
+
+        <!-- Stickman -->
+        <circle cx="400" cy="270" r="10" fill="black" />
+        <line x1="400" y1="280" x2="400" y2="310" stroke="black" />
+        <line x1="400" y1="290" x2="390" y2="300" stroke="black" />
+        <line x1="400" y1="290" x2="410" y2="300" stroke="black" />
+        <line x1="400" y1="310" x2="390" y2="330" stroke="black" />
+        <line x1="400" y1="310" x2="410" y2="330" stroke="black" />
+
+        <!-- Bow -->
+        <image id="bow" href="./asset/bow1.png" x="380" y="270" width="40" height="60" />
+
+        <!-- Targets -->
+        <g id="target0" class="target-group">
+          <image id="targetImage0" href="./asset/target.png" x="100" y="10" width="90" height="90" />
+          <text x="145" y="115" text-anchor="middle" id="label0" font-size="16">Option A</text>
+        </g>
+
+        <g id="target1" class="target-group">
+          <image id="targetImage1" href="./asset/target.png" x="250" y="10" width="90" height="90" />
+          <text x="295" y="115" text-anchor="middle" id="label1" font-size="16">Option B</text>
+        </g>
+
+        <g id="target2" class="target-group">
+          <image id="targetImage2" href="./asset/target.png" x="450" y="10" width="90" height="90" />
+          <text x="495" y="115" text-anchor="middle" id="label2" font-size="16">Option C</text>
+        </g>
+
+        <g id="target3" class="target-group">
+          <image id="targetImage3" href="./asset/target.png" x="600" y="10" width="90" height="90" />
+          <text x="645" y="115" text-anchor="middle" id="label3" font-size="16">Option D</text>
+        </g>
+
+        <!-- Arrow -->
+        <image id="arrow" href="./asset/arrow.png" x="350" y="290" width="80" height="35" />
+      </svg>
+    </div>
+
+  </div>
+
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <h2>📘 Review</h2>
+    <div id="sidebarContent"></div>
+  </div>
+
+  <!-- Final Score Popup -->
+  <div id="finalPopup">
+    <div id="finalScoreText"></div>
+    <button id="playBtn" onclick="location.reload()">Play Again</button>
+    <button id="exitBtn" onclick="closeGame()">Exit</button>
+  </div>
+  <div id="controls">
+    <button id="skipBtn" onclick="skipQuestion()">⏭ Skip</button>
+  </div>
+  <script>
+    let score = 0;
+    let currentIndex = 0;
+    let selectedAnswer = null;
+    let selectedIndex = null;
+    let canDrag = false, dragging = false;
+
+    // Track results
+    let results = [];
+
+    const questions = [
+      { text: "1.What is the value of π (pi) rounded to two decimal places?", options: ["3.14", "2.72", "1.62", "3.33"], answer: "3.14" },
+      { text: "2.What is 12 × 8?", options: ["96", "84", "108", "88"], answer: "96" },
+      { text: "3.What is the square root of 144?", options: ["12", "14", "10", "16"], answer: "12" },
+      { text: "4.What is 25% of 200?", options: ["50", "25", "75", "100"], answer: "50" },
+      { text: "5.What is the next prime number after 7?", options: ["9", "11", "13", "17"], answer: "11" },
+      { text: "6.What is the value of 2³?", options: ["6", "8", "9", "12"], answer: "8" },
+      { text: "7.What is the perimeter of a square with side length 5?", options: ["20", "25", "15", "10"], answer: "20" },
+      { text: "8.What is the area of a triangle with base 10 and height 5?", options: ["25", "50", "30", "20"], answer: "25" },
+      { text: "9.What is 100 divided by 4?", options: ["25", "20", "30", "40"], answer: "25" },
+      { text: "10.What is the value of 7²?", options: ["49", "42", "56", "36"], answer: "49" },
+      { text: "11.What is the sum of angles in a triangle?", options: ["180°", "360°", "90°", "270°"], answer: "180°" },
+      { text: "12.What is the cube root of 27?", options: ["3", "9", "6", "4"], answer: "3" },
+      { text: "13.What is the smallest even number?", options: ["0", "2", "4", "6"], answer: "0" },
+      { text: "14.What is 15% of 300?", options: ["45", "30", "60", "75"], answer: "45" },
+      { text: "15.What is the value of 9 × 9?", options: ["81", "72", "99", "90"], answer: "81" },
+      { text: "16.What is the formula for the area of a circle?", options: ["πr²", "2πr", "πd", "r²"], answer: "πr²" },
+      { text: "17.What is the median of [3, 7, 9]?", options: ["7", "3", "9", "6"], answer: "7" },
+      { text: "18.What is the value of 1000 − 456?", options: ["544", "554", "564", "534"], answer: "544" },
+      { text: "19.What is the value of 5! (5 factorial)?", options: ["120", "60", "24", "100"], answer: "120" },
+      { text: "20.What is the value of 0 divided by any non-zero number?", options: ["0", "1", "Undefined", "Infinity"], answer: "0" }
+    ];
+
+    const arrow = document.getElementById("arrow");
+    const message = document.getElementById("message");
+    const svg = document.getElementById("gameSVG");
+    const bow = document.getElementById("bow");
+
+    function resetArrow() {
+      arrow.setAttribute("x", 350);
+      arrow.setAttribute("y", 290);
+      arrow.removeAttribute("transform");
+      bow.setAttribute("x", 380);
+      bow.setAttribute("y", 270);
+    }
+
+    function loadQuestion() {
+      if (currentIndex >= questions.length) {
+        showFinalPopup();
+        return;
+      }
+
+      const q = questions[currentIndex];
+      document.getElementById("question").textContent = q.text;
+      selectedAnswer = null;
+      selectedIndex = null;
+      canDrag = false;
+      dragging = false;
+      resetArrow();
+      document.getElementById("score").textContent = `Score: ${score} / ${questions.length}`;
+
+      q.options.forEach((opt, i) => {
+        const targetGroup = document.getElementById("target" + i);
+        document.getElementById("label" + i).textContent = opt;
+        targetGroup.onclick = () => selectAnswer(opt, i);
+      });
+    }
+
+    // ✅ Skip button logic
+    function skipQuestion() {
+      results.push({
+        question: questions[currentIndex].text,
+        type: "skipped",
+        correct: questions[currentIndex].answer
+      });
+
+      currentIndex++;
+      if (currentIndex < questions.length) {
+        loadQuestion();
+      } else {
+        showFinalPopup();
+      }
+    }
+
+    function selectAnswer(opt, index) {
+      selectedAnswer = opt;
+      selectedIndex = index;
+      message.textContent = "🎯 Drag or Double tap(for mobile) to shoot arrow and verify your answer.";
+      canDrag = true;
+    }
+
+    function closeGame() {
+      document.getElementById("finalPopup").style.display = "none";
+      document.getElementById("question").textContent = "Thanks for playing! 👋";
+    }
+    
+
+    // Shooting events
+    svg.addEventListener("mousedown", () => {
+      if (!canDrag) return;
+      dragging = true;
+    });
+
+    svg.addEventListener("mousemove", (e) => {
+      if (!dragging) return;
+      const svgPoint = svg.createSVGPoint();
+      svgPoint.x = e.clientX;
+      svgPoint.y = e.clientY;
+      const cursor = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
+
+      let dx = cursor.x - 400;
+      let dy = cursor.y - 300;
+      const distance = Math.min(Math.sqrt(dx * dx + dy * dy), 30);
+      const angle = Math.atan2(dy, dx);
+      const offsetX = distance * Math.cos(angle);
+      const offsetY = distance * Math.sin(angle);
+
+      arrow.setAttribute("x", 350 + offsetX);
+      arrow.setAttribute("y", 290 + offsetY);
+      bow.setAttribute("x", 380 + offsetX);
+      bow.setAttribute("y", 270 + offsetY);
+    });
+
+    svg.addEventListener("mouseup", () => {
+      if (!dragging || selectedIndex === null) return;
+      dragging = false;
+      canDrag = false;
+
+      const targetImage = document.getElementById("targetImage" + selectedIndex);
+      const targetBbox = targetImage.getBBox();
+      const centerX = targetBbox.x + targetBbox.width / 2;
+      const centerY = targetBbox.y + targetBbox.height / 2;
+
+      let currentX = parseFloat(arrow.getAttribute("x"));
+      let currentY = parseFloat(arrow.getAttribute("y"));
+
+      const arrowWidth = parseFloat(arrow.getAttribute("width"));
+      const arrowHeight = parseFloat(arrow.getAttribute("height"));
+
+      const lerpFactor = 0.1;
+      let interval = setInterval(() => {
+        currentX += (centerX - currentX) * lerpFactor;
+        currentY += (centerY - currentY) * lerpFactor;
+
+        arrow.setAttribute("x", currentX);
+        arrow.setAttribute("y", currentY);
+
+        let angleDeg = Math.atan2((centerY - currentY), (centerX - currentX)) * (180 / Math.PI);
+        arrow.setAttribute("transform", `rotate(${angleDeg}, ${currentX + arrowWidth / 2}, ${currentY + arrowHeight / 2})`);
+
+        if (Math.abs(currentX - centerX) < 1 && Math.abs(currentY - centerY) < 1) {
+          clearInterval(interval);
+
+          arrow.setAttribute("x", centerX - arrowWidth / 2);
+          arrow.setAttribute("y", centerY - arrowHeight / 2);
+          arrow.removeAttribute("transform");
+
+          const hitOption = questions[currentIndex].options[selectedIndex];
+          if (hitOption === questions[currentIndex].answer) {
+            message.textContent = "✅ Correct!";
+            score++;
+            results.push({
+              question: questions[currentIndex].text,
+              type: "correct",
+              chosen: hitOption
+            });
+          } else {
+            message.textContent = "❌ Incorrect.";
+            results.push({
+              question: questions[currentIndex].text,
+              type: "wrong",
+              chosen: hitOption,
+              correct: questions[currentIndex].answer
+            });
+          }
+
+          document.getElementById("score").textContent = `Score: ${score} / ${questions.length}`;
+
+          setTimeout(() => {
+            currentIndex++;
+            message.textContent = "";
+            resetArrow();
+            if (currentIndex < questions.length) {
+              loadQuestion();
+            } else {
+              showFinalPopup();
+            }
+          }, 1000);
+        }
+      }, 30);
+    });
+
+    // ✅ Show Final Popup and Review
+    function showFinalPopup() {
+      // Fill not attempted if any
+      for (let i = results.length; i < questions.length; i++) {
+        results.push({
+          question: questions[i].text,
+          type: "not attempted",
+          correct: questions[i].answer
+        });
+      }
+
+      // Clear sidebar
+      let sidebar = document.getElementById("sidebarContent");
+      sidebar.innerHTML = "";
+
+      // Populate sidebar with all questions
+      results.forEach((res, idx) => {
+        let div = document.createElement("div");
+        div.innerHTML = `<strong>Q${idx + 1}:</strong> ${res.question}<br>`;
+        if (res.type === "correct") {
+          div.innerHTML += `✅ Correct (Your Answer: ${res.chosen})`;
+        } else if (res.type === "wrong") {
+          div.innerHTML += `❌ Wrong (Your Answer: ${res.chosen})<br>
+                          ✅ Correct Answer: ${res.correct}`;
+        } else if (res.type === "skipped") {
+          div.innerHTML += `⏭ Skipped <br> ✅ Correct Answer: ${res.correct}`;
+        } else {
+          div.innerHTML += `❓ Not Attempted <br> ✅ Correct Answer: ${res.correct}`;
+        }
+        sidebar.appendChild(div);
+      });
+
+      // Calculate percentage
+      let percentage = ((score / questions.length) * 100).toFixed(2);
+
+      document.getElementById("finalScoreText").textContent =
+        `🎉 Final Score: ${score} / ${questions.length} (${percentage}%)`;
+
+      document.getElementById("finalPopup").style.display = "block";
+      document.getElementById("sidebar").style.left = "0"; // Sidebar slides in
+    }
+
+    loadQuestion();
+  </script>
+
+</body>
+
+</html>
